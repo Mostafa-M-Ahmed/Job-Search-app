@@ -4,7 +4,12 @@ import User from "../../../DB/models/user.model.js";
 import { sendEmailService } from "../../services/send-email.service.js";
 import { ErrorClass } from "../../utils/error-class.utils.js";
 
-// sign up 
+/**
+ * @description Sign up a new user.
+ * @param {Object} req - The request object containing user details.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A confirmation message and the created user.
+ */
 export const signUp = async (req, res, next) => {
   const { firstName, lastName, userName, email, password, recoveryEmail, DOB, mobileNumber, role, status } = req.body;
 
@@ -81,7 +86,12 @@ export const signUp = async (req, res, next) => {
 
 };
 
-// Confirm Email
+/**
+ * @description Confirm a user's email.
+ * @param {Object} req - The request object containing the token.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A confirmation message.
+ */
 export const confirmEmail = async (req, res, next) => {
   const { token } = req.params;
 
@@ -99,7 +109,12 @@ export const confirmEmail = async (req, res, next) => {
   }
 };
 
-// sign in
+/**
+ * @description Sign in a user.
+ * @param {Object} req - The request object containing credentials.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message and a token.
+ */
 export const login = async (req, res, next) => {
   const { credential, password } = req.body;
 
@@ -129,7 +144,12 @@ export const login = async (req, res, next) => {
   }
 };
 
-// Update Account
+/**
+ * @description Update a user's account.
+ * @param {Object} req - The request object containing updated user details.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message and the updated user.
+ */
 export const updateAccount = async (req, res, next) => {
   const { _id } = req.authUser;
   const { email, mobileNumber, recoveryEmail, DOB, lastName, firstName } = req.body;
@@ -170,7 +190,12 @@ export const updateAccount = async (req, res, next) => {
   }
 };
 
-// Delete Account
+/**
+ * @description Delete a user's account.
+ * @param {Object} req - The request object containing the user ID.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message.
+ */
 export const deleteAccount = async (req, res, next) => {
   const { _id } = req.authUser;
 
@@ -187,20 +212,20 @@ export const deleteAccount = async (req, res, next) => {
   }
 };
 
-// Get User Account Data
+/**
+ * @description Get a user's account data.
+ * @param {Object} req - The request object containing the user ID.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} The user's account data.
+ */
 export const getAccountData = async (req, res, next) => {
   const { _id } = req.authUser;
-  console.log("1");
   try {
     const user = await User.findById(_id).select('-password');
-    console.log("2");
 
     if (!user) {
-  console.log("3");
-
       return next(new ErrorClass("User not found", 404, "User not found"));
     }
-    console.log("4");
 
     res.status(200).json({ message: "User account data fetched successfully", user });
   } catch (err) {
@@ -208,7 +233,12 @@ export const getAccountData = async (req, res, next) => {
   }
 };
 
-// Get Profile Data for Another User
+/**
+ * @description Get profile data for another user.
+ * @param {Object} req - The request object containing the user ID.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} The user's profile data.
+ */
 export const getProfileData = async (req, res, next) => {
   const { _id } = req.params;
 
@@ -225,7 +255,12 @@ export const getProfileData = async (req, res, next) => {
   }
 };
 
-// Update Password
+/**
+ * @description Update a user's password.
+ * @param {Object} req - The request object containing the old and new passwords.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message.
+ */
 export const updatePassword = async (req, res, next) => {
   const { _id } = req.authUser;
   const { oldPassword, newPassword } = req.body;
@@ -252,7 +287,12 @@ export const updatePassword = async (req, res, next) => {
   }
 };
 
-// Forget Password
+/**
+ * @description Send a password reset email.
+ * @param {Object} req - The request object containing the user's email.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message.
+ */
 export const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
@@ -305,7 +345,12 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
-// Reset Password
+/**
+ * @description Reset a user's password.
+ * @param {Object} req - The request object containing the token and new password.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A success message.
+ */
 export const resetPassword = async (req, res, next) => {
   const { token } = req.params;
   const { newPassword } = req.body;
@@ -330,7 +375,12 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
-// Get All Accounts Associated with a Specific Recovery Email
+/**
+ * @description Get all accounts associated with a specific recovery email.
+ * @param {Object} req - The request object containing the recovery email.
+ * @param {Object} res - The response object to send the result.
+ * @returns {Object} A message and the list of users.
+ */
 export const getAccountsByRecoveryEmail = async (req, res, next) => {
   const { recoveryEmail } = req.params;
 

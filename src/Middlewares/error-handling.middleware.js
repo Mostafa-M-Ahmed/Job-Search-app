@@ -1,5 +1,10 @@
 import { ErrorClass } from "../utils/error-class.utils.js";
 
+/**
+ * @param {Function} API - The API function to be wrapped with error handling
+ * @returns {Function} - Middleware function to handle errors from the API function
+ * @description Middleware to handle errors for asynchronous API functions
+ */
 export const errorHandler = (API) => {
   return (req, res, next) => {
     const result = API(req, res, next);
@@ -13,9 +18,11 @@ export const errorHandler = (API) => {
   };
 };
 
+/**
+ * @description Global error handler to format and send error responses
+ */
 export const globaleResponse = (err, req, res, next) => {
   if (err) {
-    console.log(err);
     res.status(err.status || 500).json({
       message: "Fail response",
       err_msg: err.message,

@@ -2,8 +2,8 @@ import { ErrorClass } from "../utils/error-class.utils.js";
 
 /**
  * @param {object} schema - Joi schema object
- * @returns {Function} - Middleware function
- * @description - Middleware function to validate the request data against the schema
+ * @returns {Function} - Middleware function to validate the request data against the schema
+ * @description Middleware to validate request data (body, query, params, headers) against provided Joi schema
  */
 const reqKeys = ["body", "query", "params", "headers"];
 

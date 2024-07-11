@@ -6,6 +6,9 @@ import { ErrorClass } from "../../utils/error-class.utils.js";
 
 /**
  * @description Add a new company
+ * @param {Object} req - The request object containing company details.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message and company details.
  */
 export const addCompany = async (req, res, next) => {
   try {
@@ -46,6 +49,9 @@ export const addCompany = async (req, res, next) => {
 
 /**
  * @description Update company data
+ * @param {Object} req - The request object containing updated company details.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message and updated company details.
  */
 export const updateCompany = async (req, res, next) => {
   const { companyId } = req.params;
@@ -98,6 +104,9 @@ export const updateCompany = async (req, res, next) => {
 
 /**
  * @description Delete company data
+ * @param {Object} req - The request object containing company ID.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message.
  */
 export const deleteCompany = async (req, res, next) => {
   const { companyId } = req.params;
@@ -123,7 +132,10 @@ export const deleteCompany = async (req, res, next) => {
 };
 
 /**
- * @description Get company data
+ * @description Get company data along with associated jobs
+ * @param {Object} req - The request object containing company ID.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with company and job details.
  */
 export const getCompanyData = async (req, res, next) => {
   const { companyId } = req.params;
@@ -151,7 +163,10 @@ export const getCompanyData = async (req, res, next) => {
 };
 
 /**
- * @description Search for a company with a name
+ * @description Search for a company by name
+ * @param {Object} req - The request object containing company name as query parameter.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with number of companies found and company details.
  */
 export const searchCompany = async (req, res, next) => {
   const { companyName } = req.query;
@@ -171,7 +186,10 @@ export const searchCompany = async (req, res, next) => {
 };
 
 /**
- * @description Get all applications for specific jobs
+ * @description Get all applications for a specific job
+ * @param {Object} req - The request object containing job ID.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with number of applications found and application details.
  */
 export const getJobApplicationsForSpecificJob = async (req, res, next) => {
   const { jobId } = req.params;
@@ -184,14 +202,12 @@ export const getJobApplicationsForSpecificJob = async (req, res, next) => {
 
     const job = await Job.findById(jobId);
 
-    console.log(job);
     // Check if the job exists and if the user is the owner of the job's company
     if (!job ) {
       return next(new ErrorClass("Not found or unauthorized", 404, "Not found or unauthorized" ,"company.controller.getJobApplications.jobExists"));
     }
 
     const applications = await Application.find({ jobId }).populate('jobId');
-    // const applications = await Application.find({ jobId })
 
     res.status(200).json({ message: `Number of applications fetched: ${applications.length}`, applications });
   } catch (err) {

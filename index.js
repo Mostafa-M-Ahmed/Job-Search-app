@@ -10,7 +10,7 @@ import { globaleResponse } from "./src/Middlewares/error-handling.middleware.js"
 
 const app = express();
 
-// check the environment if it is dev or prod
+// check the environment if it is dev or production
 if (process.env.NODE_ENV == "dev") {
   config({ path: path.resolve(".dev.env") });
 }
@@ -27,9 +27,10 @@ app.use("/user", userRouter);
 app.use("/company", companyRouter);
 app.use("/job", jobRouter);
 
-
+// for handeling errors
 app.use(globaleResponse);
 
+// connecting to DB
 connection_db();
 
 app.get("/", (req, res) => res.send("Welcome to 'Job search app'"));

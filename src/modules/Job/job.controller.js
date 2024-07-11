@@ -5,6 +5,9 @@ import { ErrorClass } from "../../utils/error-class.utils.js";
 
 /**
  * @description Add a new job
+ * @param {Object} req - The request object containing job details.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message and job details.
  */
 export const addJob = async (req, res, next) => {
   const { jobTitle, jobLocation, workingTime, seniorityLevel, jobDescription, technicalSkills, softSkills, addedBy } = req.body;
@@ -36,6 +39,9 @@ export const addJob = async (req, res, next) => {
 
 /**
  * @description Update job data
+ * @param {Object} req - The request object containing updated job details.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message and updated job details.
  */
 export const updateJob = async (req, res, next) => {
   const { jobId } = req.params;
@@ -73,6 +79,9 @@ export const updateJob = async (req, res, next) => {
 
 /**
  * @description Delete job data
+ * @param {Object} req - The request object containing job ID.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message.
  */
 export const deleteJob = async (req, res, next) => {
   const { jobId } = req.params;
@@ -99,6 +108,9 @@ export const deleteJob = async (req, res, next) => {
 
 /**
  * @description Get all jobs with their company's information
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with the number of jobs and job details.
  */
 export const getAllJobsWithCompanyInfo = async (req, res, next) => {
   try {
@@ -118,6 +130,9 @@ export const getAllJobsWithCompanyInfo = async (req, res, next) => {
 
 /**
  * @description Get all jobs for a specific company
+ * @param {Object} req - The request object containing company name query parameter.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with the number of jobs and job details.
  */
 export const getJobsForCompany = async (req, res, next) => {
   const { companyName } = req.query;
@@ -144,6 +159,9 @@ export const getJobsForCompany = async (req, res, next) => {
 
 /**
  * @description Get all jobs that match the filters
+ * @param {Object} req - The request object containing job filters as query parameters.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with the number of jobs and job details.
  */
 export const getFilteredJobs = async (req, res, next) => {
   const { workingTime, jobLocation, seniorityLevel, jobTitle, technicalSkills } = req.query;
@@ -171,6 +189,9 @@ export const getFilteredJobs = async (req, res, next) => {
 
 /**
  * @description Apply to a job
+ * @param {Object} req - The request object containing application details.
+ * @param {Object} res - The response object.
+ * @returns {Object} JSON response with success message and application details.
  */
 export const applyToJob = async (req, res, next) => {
   const { jobId } = req.params;
