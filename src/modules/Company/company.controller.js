@@ -21,10 +21,6 @@ export const addCompany = async (req, res, next) => {
       return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.addCompany.Unauthorized"));
     }
 
-    if (!req.authUser.isConfirmed) {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.addCompany.Unauthorized"));
-    }
-
     // Check if the company name or email already exists
     const isCompanyExists = await Company.findOne({ $or: [{ companyName }, { companyEmail }] });
     if (isCompanyExists) {
@@ -126,6 +122,10 @@ export const deleteCompany = async (req, res, next) => {
       return next(new ErrorClass("Not found or unauthorized", 404, "Not found or unauthorized", "company.controller.deleteCompany.companyExists"));
     }
 
+    // Delete all jobs related to this company
+    await Job.deleteMany({ addedBy: company._id });
+
+    // Delete the company
     await company.deleteOne();
     res.status(200).json({ message: "Company deleted successfully" });
   } catch (err) {
@@ -217,11 +217,6 @@ export const getJobApplicationsForSpecificJob = async (req, res, next) => {
   }
 };
 
-
-/**
- * @description Get applications for a specific company on a specific day and create an Excel sheet
- */
-
 /**
  * @description Get applications for a specific company on a specific day and create an Excel sheet
  * @param {Object} req - The request object containing company ID and date.
@@ -242,15 +237,13 @@ export const getApplicationsForCompanyOnDay = async (req, res, next) => {
 
     // Check if the company exists and if the user is the owner
     if (!company || company.companyHR.toString() !== req.authUser._id.toString()) {
-      return next(new ErrorClass("Not found or unauthorized", 404, "Not found or unauthorized"));
+      return next(new ErrorClass("Not found or unauthorized", 404, "User may search for applications for their own company"));
     }
 
-    // Validate date
-    if (!date) {
+     // Validate date
+     if (!date) {
       return next(new ErrorClass("Date query parameter is required", 400));
     }
-
-    const specificDate = moment(date).startOf("day").toDate();
 
     // finding jobs for required company
     const jobs = await Job.find({ addedBy: company._id });
@@ -259,12 +252,13 @@ export const getApplicationsForCompanyOnDay = async (req, res, next) => {
       return next(new ErrorClass("No jobs found for this company", 404));
     }
 
-    const applications = await Application.find({
-      createdAt: {
-        $gte: specificDate,
-        $lt: moment(specificDate).endOf("day").toDate(),
-      },
-    });
+      const specificDate = moment(date).startOf("day").toDate();
+      const applications = await Application.find({
+        createdAt: {
+          $gte: specificDate,
+          $lt: moment(specificDate).endOf("day").toDate(),
+        },
+      });
 
     // Create an Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();

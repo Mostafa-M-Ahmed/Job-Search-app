@@ -3,6 +3,10 @@ import { compareSync, hashSync } from "bcrypt";
 import User from "../../../DB/models/user.model.js";
 import { sendEmailService } from "../../services/send-email.service.js";
 import { ErrorClass } from "../../utils/error-class.utils.js";
+import Company from "../../../DB/models/company.model.js";
+import Job from "../../../DB/models/job.model.js";
+import Application from "../../../DB/models/application.model.js";
+
 
 /**
  * @description Sign up a new user.
@@ -198,12 +202,35 @@ export const updateAccount = async (req, res, next) => {
  */
 export const deleteAccount = async (req, res, next) => {
   const { _id } = req.authUser;
+  const { role } = req.authUser;
 
   try {
     const user = await User.findByIdAndDelete(_id);
 
     if (!user) {
       return next(new ErrorClass("User not found", 404, "User not found"));
+    }
+
+    if (role === "Company_HR") {
+      const companies = await Company.find();
+    
+      for (const company of companies) {
+        if (company.companyHR.toString() === user._id.toString()) {
+          const jobs = await Job.find({ addedBy: company._id });
+    
+          for (const job of jobs) {
+            await Application.deleteMany({ jobId: job._id });
+          }
+    
+          await Job.deleteMany({ addedBy: company._id });
+          await Company.findByIdAndDelete(company._id);
+        }
+      }
+    }
+
+    if (role === "User") {
+      // Delete all applications by this user (if any)
+      await Application.deleteMany({ userId: user._id });
     }
 
     res.status(200).json({ message: "User account deleted successfully" });
@@ -220,6 +247,7 @@ export const deleteAccount = async (req, res, next) => {
  */
 export const getAccountData = async (req, res, next) => {
   const { _id } = req.authUser;
+
   try {
     const user = await User.findById(_id).select('-password');
 

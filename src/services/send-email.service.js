@@ -14,13 +14,13 @@ export const sendEmailService = async ({
 } = {}) => {
   // configer email ( transporter)
   const transporter = nodemailer.createTransport({
-    host: "localhost", // smtp.gmail.com
-    port: 587, //587,25
+    host: process.env.NODE_MAILER_HOST, // smtp.gmail.com
+    port: process.env.NODE_MAILER_PORT, //587,25
     secure: false, // true , false
-    service: "gmail",
+    service: process.env.NODE_MAILER_SERVICE,
     auth: {
-      user: "mostafaoffa45@gmail.com", // app
-      pass: "ktpwkwlxmpjvltyq", // app-password
+      user: process.env.NODE_MAILER_USER, // app
+      pass: process.env.NODE_MAILER_PASS, // app-password
     },
   });
   // configer message ( mail )

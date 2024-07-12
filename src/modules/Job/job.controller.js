@@ -18,6 +18,8 @@ export const addJob = async (req, res, next) => {
       return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
     }
 
+    const mainCompany = await Company.findOne({ companyHR: req.authUser._id })
+
     const jobInstance = new Job({
       jobTitle,
       jobLocation,
@@ -26,7 +28,7 @@ export const addJob = async (req, res, next) => {
       jobDescription,
       technicalSkills,
       softSkills,
-      addedBy: req.authUser._id,
+      addedBy: mainCompany,
     });
 
     
@@ -99,7 +101,12 @@ export const deleteJob = async (req, res, next) => {
       return next(new ErrorClass("Not found or unauthorized", 404, "Not found or unauthorized"));
     }
 
+    // Delete all applications related to this job
+    await Application.deleteMany({ jobId: job._id });
+
+    // Delete the job
     await job.deleteOne();
+    
     res.status(200).json({ message: "Job deleted successfully" });
   } catch (err) {
     next(err);
