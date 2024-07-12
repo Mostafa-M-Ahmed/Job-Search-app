@@ -21,10 +21,16 @@ export const addCompany = async (req, res, next) => {
       return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.addCompany.Unauthorized"));
     }
 
+    // Check if the companyHR already owns a company
+    const isCompanyHROwnsCompany = await Company.findOne({ companyHR: req.authUser._id });
+    if (isCompanyHROwnsCompany) {
+      return next(new ErrorClass("CompanyHR already owns a company", 400, "CompanyHR may own only one company", "company.controller.addCompany.isCompanyHROwnsCompany"));
+    }
+
     // Check if the company name or email already exists
     const isCompanyExists = await Company.findOne({ $or: [{ companyName }, { companyEmail }] });
     if (isCompanyExists) {
-      return next(new ErrorClass("Company already exists", 400, "Company already exists", "company.controller.addCompany.isCompanyExists"));
+      return next(new ErrorClass("Company already exists", 400, "Company must have unique Name and Email", "company.controller.addCompany.isCompanyExists"));
     }
 
     // Create new company instance
@@ -240,8 +246,8 @@ export const getApplicationsForCompanyOnDay = async (req, res, next) => {
       return next(new ErrorClass("Not found or unauthorized", 404, "User may search for applications for their own company"));
     }
 
-     // Validate date
-     if (!date) {
+    // Validate date
+    if (!date) {
       return next(new ErrorClass("Date query parameter is required", 400));
     }
 
@@ -252,13 +258,13 @@ export const getApplicationsForCompanyOnDay = async (req, res, next) => {
       return next(new ErrorClass("No jobs found for this company", 404));
     }
 
-      const specificDate = moment(date).startOf("day").toDate();
-      const applications = await Application.find({
-        createdAt: {
-          $gte: specificDate,
-          $lt: moment(specificDate).endOf("day").toDate(),
-        },
-      });
+    const specificDate = moment(date).startOf("day").toDate();
+    const applications = await Application.find({
+      createdAt: {
+        $gte: specificDate,
+        $lt: moment(specificDate).endOf("day").toDate(),
+      },
+    });
 
     // Create an Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();
