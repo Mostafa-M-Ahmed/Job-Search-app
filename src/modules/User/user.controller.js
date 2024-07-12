@@ -181,10 +181,13 @@ export const updateAccount = async (req, res, next) => {
       user.mobileNumber = mobileNumber;
     }
 
-    if (recoveryEmail) user.recoveryEmail = recoveryEmail;
-    if (DOB) user.DOB = DOB;
-    if (lastName) user.lastName = lastName;
-    if (firstName) user.firstName = firstName;
+    // Update user data
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.recoveryEmail = recoveryEmail || user.recoveryEmail;
+    user.DOB = DOB || user.DOB;
+    user.userName = `${user.firstName} ${user.lastName}`
+
     user.version_key += 1;
 
     await user.save();
@@ -213,15 +216,15 @@ export const deleteAccount = async (req, res, next) => {
 
     if (role === "Company_HR") {
       const companies = await Company.find();
-    
+
       for (const company of companies) {
         if (company.companyHR.toString() === user._id.toString()) {
           const jobs = await Job.find({ addedBy: company._id });
-    
+
           for (const job of jobs) {
             await Application.deleteMany({ jobId: job._id });
           }
-    
+
           await Job.deleteMany({ addedBy: company._id });
           await Company.findByIdAndDelete(company._id);
         }
