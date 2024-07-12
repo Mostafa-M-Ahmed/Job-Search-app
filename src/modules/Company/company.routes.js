@@ -21,4 +21,6 @@ router.get("/search", errorHandler(auth()), errorHandler(authorize(roles.USER_CO
 
 router.get("/applications/:jobId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.getJobApplicationsForSpecificJob));
 
+router.get('/applications-company/:companyId', errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.getApplicationsForCompanyOnDay));
+
 export default router;

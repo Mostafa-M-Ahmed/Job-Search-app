@@ -15,9 +15,9 @@ router.get("/confirm-email/:token", errorHandler(userController.confirmEmail));
 
 router.post("/login", errorHandler(validationMiddleware(SignInSchema)), errorHandler(userController.login));
 
-router.put("/update", errorHandler(auth()), errorHandler(authorize(roles.USER)), errorHandler(validationMiddleware(UpdateUserSchema)), errorHandler(userController.updateAccount));
+router.put("/update", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(validationMiddleware(UpdateUserSchema)), errorHandler(userController.updateAccount));
 
-router.delete("/delete", errorHandler(auth()), errorHandler(authorize(roles.USER)), errorHandler(userController.deleteAccount));
+router.delete("/delete", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(userController.deleteAccount));
 
 router.get("/account", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(userController.getAccountData));
 
