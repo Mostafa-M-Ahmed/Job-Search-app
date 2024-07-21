@@ -13,11 +13,6 @@ export const addJob = async (req, res, next) => {
   const { jobTitle, jobLocation, workingTime, seniorityLevel, jobDescription, technicalSkills, softSkills, addedBy } = req.body;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const mainCompany = await Company.findOne({ companyHR: req.authUser._id })
 
     const jobInstance = new Job({
@@ -31,7 +26,7 @@ export const addJob = async (req, res, next) => {
       addedBy: mainCompany,
     });
 
-    
+
     const newJob = await jobInstance.save();
     res.status(201).json({ message: "Job added successfully", job: newJob });
   } catch (err) {
@@ -50,11 +45,6 @@ export const updateJob = async (req, res, next) => {
   const { jobTitle, jobLocation, workingTime, seniorityLevel, jobDescription, technicalSkills, softSkills } = req.body;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const job = await Job.findById(jobId);
 
     // Check if the job exists and if the user is the owner
@@ -71,7 +61,7 @@ export const updateJob = async (req, res, next) => {
     job.technicalSkills = technicalSkills || job.technicalSkills;
     job.softSkills = softSkills || job.softSkills;
     job.version_key += 1;
-    
+
     const updatedJob = await job.save();
     res.status(200).json({ message: "Job updated successfully", job: updatedJob });
   } catch (err) {
@@ -89,11 +79,6 @@ export const deleteJob = async (req, res, next) => {
   const { jobId } = req.params;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const job = await Job.findById(jobId);
 
     // Check if the job exists and if the user is the owner
@@ -106,7 +91,7 @@ export const deleteJob = async (req, res, next) => {
 
     // Delete the job
     await job.deleteOne();
-    
+
     res.status(200).json({ message: "Job deleted successfully" });
   } catch (err) {
     next(err);
@@ -121,15 +106,9 @@ export const deleteJob = async (req, res, next) => {
  */
 export const getAllJobsWithCompanyInfo = async (req, res, next) => {
   try {
-    // Check if the user is authorized
-
-    if (req.authUser.role !== "User" && req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const jobs = await Job.find().populate('addedBy');
 
-    res.status(200).json({ message:`Number of jobs fetched: ${jobs.length}`, jobs });
+    res.status(200).json({ message: `Number of jobs fetched: ${jobs.length}`, jobs });
   } catch (err) {
     next(err);
   }
@@ -145,11 +124,6 @@ export const getJobsForCompany = async (req, res, next) => {
   const { companyName } = req.query;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "User" && req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const company = await Company.findOne({ companyName });
 
     if (!company) {
@@ -158,7 +132,7 @@ export const getJobsForCompany = async (req, res, next) => {
 
     const jobs = await Job.find({ addedBy: company._id });
 
-    res.status(200).json({ message:`Number of jobs fetched: ${jobs.length}`, jobs });
+    res.status(200).json({ message: `Number of jobs fetched: ${jobs.length}`, jobs });
   } catch (err) {
     next(err);
   }
@@ -174,11 +148,6 @@ export const getFilteredJobs = async (req, res, next) => {
   const { workingTime, jobLocation, seniorityLevel, jobTitle, technicalSkills } = req.query;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "User" && req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const filters = {};
     if (workingTime) filters.workingTime = workingTime;
     if (jobLocation) filters.jobLocation = jobLocation;
@@ -188,7 +157,7 @@ export const getFilteredJobs = async (req, res, next) => {
 
     const jobs = await Job.find(filters).populate('addedBy');
 
-    res.status(200).json({ message:`Number of jobs fetched: ${jobs.length}`, jobs });
+    res.status(200).json({ message: `Number of jobs fetched: ${jobs.length}`, jobs });
   } catch (err) {
     next(err);
   }
@@ -205,11 +174,6 @@ export const applyToJob = async (req, res, next) => {
   const { userTechSkills, userSoftSkills, userResume } = req.body;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "User") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const isJobExists = await Job.findById(jobId)
     // Check if the user is authorized
     if (!isJobExists) {

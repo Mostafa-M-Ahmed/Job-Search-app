@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import * as jobController from "./job.controller.js";
 import { errorHandler } from "../../Middlewares/error-handling.middleware.js";
 import { validationMiddleware } from "../../Middlewares/validation.middleware.js";
@@ -9,18 +10,27 @@ import { roles } from "../../utils/system-roles.utils.js";
 
 const router = Router();
 
-router.post("/add", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(validationMiddleware(AddJobSchema)), errorHandler(jobController.addJob));
+// Apply authentication middleware to all routes in this router
+router.use(errorHandler(auth()));
 
-router.put("/update/:jobId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(validationMiddleware(UpdateJobSchema)), errorHandler(jobController.updateJob));
+// Define role-based authorization middleware
+const authorizeCompanyHR = errorHandler(authorize(roles.COMPANY_HR));
+const authorizeUserCompanyHR = errorHandler(authorize(roles.USER_COMPANY_HR));
+const authorizeUser = errorHandler(authorize(roles.USER));
 
-router.delete("/delete/:jobId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(jobController.deleteJob));
+// Routes
+router.post("/add", authorizeCompanyHR, errorHandler(validationMiddleware(AddJobSchema)), errorHandler(jobController.addJob));
 
-router.get("/all", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(jobController.getAllJobsWithCompanyInfo));
+router.put("/update/:jobId", authorizeCompanyHR, errorHandler(validationMiddleware(UpdateJobSchema)), errorHandler(jobController.updateJob));
 
-router.get("/company-jobs", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(jobController.getJobsForCompany));
+router.delete("/delete/:jobId", authorizeCompanyHR, errorHandler(jobController.deleteJob));
 
-router.get("/filter", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(validationMiddleware(FilterJobsSchema)), errorHandler(jobController.getFilteredJobs));
+router.get("/all", authorizeUserCompanyHR, errorHandler(jobController.getAllJobsWithCompanyInfo));
 
-router.post("/apply/:jobId", errorHandler(auth()), errorHandler(authorize(roles.USER)), errorHandler(jobController.applyToJob));
+router.get("/company-jobs", authorizeUserCompanyHR, errorHandler(jobController.getJobsForCompany));
+
+router.get("/filter", authorizeUserCompanyHR, errorHandler(validationMiddleware(FilterJobsSchema)), errorHandler(jobController.getFilteredJobs));
+
+router.post("/apply/:jobId", authorizeUser, errorHandler(jobController.applyToJob));
 
 export default router;

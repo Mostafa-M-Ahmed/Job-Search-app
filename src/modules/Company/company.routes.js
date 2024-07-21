@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import * as companyController from "./company.controller.js";
 import { errorHandler } from "../../Middlewares/error-handling.middleware.js";
 import { validationMiddleware } from "../../Middlewares/validation.middleware.js";
@@ -9,18 +10,26 @@ import { roles } from "../../utils/system-roles.utils.js";
 
 const router = Router();
 
-router.post("/add", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(validationMiddleware(AddCompanySchema)), errorHandler(companyController.addCompany));
+// Apply authentication middleware to all routes in this router
+router.use(errorHandler(auth()));
 
-router.put("/update/:companyId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(validationMiddleware(UpdateCompanySchema)), errorHandler(companyController.updateCompany));
+// Define role-based authorization middleware
+const authorizeCompanyHR = errorHandler(authorize(roles.COMPANY_HR));
+const authorizeUserCompanyHR = errorHandler(authorize(roles.USER_COMPANY_HR));
 
-router.delete("/delete/:companyId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.deleteCompany));
+// Routes
+router.post("/add", authorizeCompanyHR, errorHandler(validationMiddleware(AddCompanySchema)), errorHandler(companyController.addCompany));
 
-router.get("/data/:companyId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.getCompanyData));
+router.put("/update/:companyId", authorizeCompanyHR, errorHandler(validationMiddleware(UpdateCompanySchema)), errorHandler(companyController.updateCompany));
 
-router.get("/search", errorHandler(auth()), errorHandler(authorize(roles.USER_COMPANY_HR)), errorHandler(companyController.searchCompany));
+router.delete("/delete/:companyId", authorizeCompanyHR, errorHandler(companyController.deleteCompany));
 
-router.get("/applications/:jobId", errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.getJobApplicationsForSpecificJob));
+router.get("/data/:companyId", authorizeCompanyHR, errorHandler(companyController.getCompanyData));
 
-router.get('/applications-company/:companyId', errorHandler(auth()), errorHandler(authorize(roles.COMPANY_HR)), errorHandler(companyController.getApplicationsForCompanyOnDay));
+router.get("/search", authorizeUserCompanyHR, errorHandler(companyController.searchCompany));
+
+router.get("/applications/:jobId", authorizeCompanyHR, errorHandler(companyController.getJobApplicationsForSpecificJob));
+
+router.get('/applications-company/:companyId', authorizeCompanyHR, errorHandler(companyController.getApplicationsForCompanyOnDay));
 
 export default router;

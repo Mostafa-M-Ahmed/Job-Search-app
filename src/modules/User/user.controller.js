@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { compareSync, hashSync } from "bcrypt";
+
 import User from "../../../DB/models/user.model.js";
 import { sendEmailService } from "../../services/send-email.service.js";
 import { ErrorClass } from "../../utils/error-class.utils.js";

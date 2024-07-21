@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { roles } from "../../utils/system-roles.utils.js";
+
 import { systemRoles } from "../../utils/system-roles.utils.js";
 
 const roleValues = Object.values(systemRoles).concat(['User', 'Company_HR']);

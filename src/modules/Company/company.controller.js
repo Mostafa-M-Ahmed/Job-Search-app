@@ -1,10 +1,11 @@
+import ExcelJS from "exceljs";
+import moment from "moment";
+
 import Company from "../../../DB/models/company.model.js";
 import Job from "../../../DB/models/job.model.js";
 import Application from "../../../DB/models/application.model.js";
-import User from "../../../DB/models/user.model.js";
 import { ErrorClass } from "../../utils/error-class.utils.js";
-import ExcelJS from "exceljs";
-import moment from "moment";
+
 
 /**
  * @description Add a new company
@@ -15,11 +16,6 @@ import moment from "moment";
 export const addCompany = async (req, res, next) => {
   try {
     const { companyName, description, industry, address, numberOfEmployees, companyEmail, companyHR } = req.body;
-
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.addCompany.Unauthorized"));
-    }
 
     // Check if the companyHR already owns a company
     const isCompanyHROwnsCompany = await Company.findOne({ companyHR: req.authUser._id });
@@ -62,11 +58,6 @@ export const updateCompany = async (req, res, next) => {
   const { companyName, description, industry, address, numberOfEmployees, companyEmail } = req.body;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.updateCompany.Unauthorized"));
-    }
-
     const company = await Company.findById(companyId);
 
     // Check if the company exists and if the user is the owner
@@ -116,11 +107,6 @@ export const deleteCompany = async (req, res, next) => {
   const { companyId } = req.params;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.deleteCompany.Unauthorized"));
-    }
-
     const company = await Company.findById(companyId);
 
     // Check if the company exists and if the user is the owner
@@ -149,11 +135,6 @@ export const getCompanyData = async (req, res, next) => {
   const { companyId } = req.params;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.getCompany.Unauthorized"));
-    }
-
     const company = await Company.findById(companyId).populate('companyHR');
 
     // Check if the company exists
@@ -180,11 +161,6 @@ export const searchCompany = async (req, res, next) => {
   const { companyName } = req.query;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR" && req.authUser.role !== "User") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.searchCompany"));
-    }
-
     const companies = await Company.find({ companyName: { $regex: companyName, $options: 'i' } });
 
     res.status(200).json({ message: `Number of companies fetched: ${companies.length}`, companies });
@@ -203,11 +179,6 @@ export const getJobApplicationsForSpecificJob = async (req, res, next) => {
   const { jobId } = req.params;
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized", "company.controller.getJobApplications.Unauthorized"));
-    }
-
     const job = await Job.findById(jobId);
 
     // Check if the job exists and if the user is the owner of the job's company
@@ -234,11 +205,6 @@ export const getApplicationsForCompanyOnDay = async (req, res, next) => {
   const { date } = req.query;   // format: YYYY-MM-DD
 
   try {
-    // Check if the user is authorized
-    if (req.authUser.role !== "Company_HR") {
-      return next(new ErrorClass("Unauthorized", 403, "Unauthorized"));
-    }
-
     const company = await Company.findById(companyId);
 
     // Check if the company exists and if the user is the owner
